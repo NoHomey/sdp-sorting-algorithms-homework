@@ -6,7 +6,7 @@ SRC_DIR = ..
 
 .PHONY: all clean test chrome-open-coverage
 
-TESTS = ExamDate
+TESTS = SubjectAbbreviation
 
 SPECS = $(addsuffix _spec,$(TESTS))
 
@@ -78,6 +78,7 @@ It.o: ./It/It.h ./It/It.cc
 	$(COMPILER) -c ./It/It.cc
 
 $(eval $(call spec,.,ExamDate))
+$(eval $(call spec,.,SubjectAbbreviation))
 
 run: all
 	$(foreach spec,$(SPECS),./$(spec) --gtest_color=yes$(endl))

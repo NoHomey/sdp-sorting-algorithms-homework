@@ -1,10 +1,11 @@
 #pragma once
 
-// ExamDate maps Dates from 2000-1-1 to 2127-12-31 into 16 bit values
+// ExamDate maps Dates from 2000-1-1 to 2127-12-31 to 16 bit values
 // It uses the first 5 bits for the day exatcly encoding all days form 1 to 31
 // It uses bits 6 to 9 to encode months numbers from 1 to 12
 // And it uses bits 10 to 16 to encode the year starting from year 2000 to year 2127
 // 2^(16 - 10 + 1) - 1 = 127 total years
+// ExamDate is perfect hashing storage class
 class ExamDate {
 public:
     // Day is Natural Number in the range [1, 31]
@@ -48,6 +49,7 @@ public:
     // returns the year with wich the ExamDate was constructed
     Year getYear() const noexcept;
 
+public:
     // returns true if and only if the two ExamDates were constructed with the exact same arguments
     bool operator==(const ExamDate& other) const noexcept;
 
