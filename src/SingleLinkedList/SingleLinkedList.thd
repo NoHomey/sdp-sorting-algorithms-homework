@@ -1,0 +1,82 @@
+#pragma once
+
+#include <cstddef>
+
+#include "NodeAllocator/Operator/Operator.thd"
+
+template<typename T, class NodeAllocator = Operator>
+class SingleLinkedList {
+public:
+    class ConstIterator;
+
+public:
+    SingleLinkedList() noexcept;
+
+    SingleLinkedList(const std::size_t allocationCount) noexcept;
+
+    ~SingleLinkedList() noexcept;
+
+    SingleLinkedList(const SingleLinkedList& other);
+
+    SingleLinkedList(SingleLinkedList&& other) noexcept;
+
+    SingleLinkedList& operator=(const SingleLinkedList& other);
+
+    SingleLinkedList& operator=(SingleLinkedList&& other) noexcept;
+
+public:
+    std::size_t length() const noexcept;
+
+    std::size_t capacity() const noexcept;
+
+    std::size_t getNextAllocationCount() const noexcept;
+
+    bool isEmpty() const noexcept;
+
+    ConstIterator first() const noexcept;
+
+public:
+    void setNextAllocationCount(const std::size_t allocationCount) noexcept;
+
+    void append(const T& value);
+
+    void append(T&& value);
+
+    void append(SingleLinkedList&& other) noexcept;
+
+public:
+    template<const std::size_t bucketsCount, typename BucketSelector>
+    void bucketSort(BucketSelector bucketSelector, const bool ascOrder = true) noexcept;
+
+    template<typename BucketSelector>
+    void bucketSort(const std::size_t bucketsCount, BucketSelector bucketSelector, const bool ascOrder = true) noexcept;
+
+private:
+    struct Node;
+
+    struct List;
+
+private:
+    void destroy() noexcept;
+
+    void null() noexcept;
+
+    void move(SingleLinkedList&& other) noexcept;
+
+    bool shouldSort() const noexcept;
+
+    void appendBucket(const List& bucket) noexcept;
+
+    template<typename BucketSelector>
+    void bucketSort(const std::size_t bucketsCount, List* buckets, BucketSelector bucketSelector, const bool ascOrder) noexcept;
+
+private:
+    List list;
+
+    typename NodeAllocator::template forType<Node> allocator;
+};
+
+#include "Node/Node.thd"
+#include "List/List.thd"
+#include "ConstIterator/ConstIterator.thd"
+#include "SingleLinkedList.tci"

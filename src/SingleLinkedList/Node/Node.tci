@@ -1,0 +1,12 @@
+#pragma once
+
+#include "Node.thd"
+#include <utility>
+
+template<typename T, class NodeAllocator>
+inline SingleLinkedList<T, NodeAllocator>::Node::Node(const T& value, Node* next)
+: next{next}, value{value} { }
+
+template<typename T, class NodeAllocator>
+inline SingleLinkedList<T, NodeAllocator>::Node::Node(T&& value, Node* next) noexcept
+: next{next}, value{std::move(value)} { }

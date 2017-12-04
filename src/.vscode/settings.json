@@ -6,6 +6,8 @@
         "type_traits": "cpp",
         "utility": "cpp",
         "*.tcc": "cpp",
+        "*.thd": "cpp",
+        "*.tci": "cpp",
         "cctype": "cpp",
         "clocale": "cpp",
         "cmath": "cpp",
@@ -28,6 +30,7 @@
         "sstream": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "cstring": "cpp"
     }
 }

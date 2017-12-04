@@ -1,0 +1,71 @@
+#pragma once
+
+#include <cstddef>
+
+class ChunkAllocator {
+public:
+    template<typename T>
+    class forType {
+    public:
+        forType() noexcept;
+
+        forType(const std::size_t allocationCount) noexcept;
+
+        ~forType() noexcept;
+
+        forType(const forType& other) noexcept = delete;
+
+        forType(forType&& other) noexcept = delete;
+
+        forType& operator=(const forType& other) noexcept = delete;
+
+        forType& operator=(forType&& other) noexcept = delete;
+
+    public:
+        std::size_t allocatedNodes() const noexcept;
+
+        std::size_t inUseAllocatedNodes() const noexcept;
+
+        std::size_t getNextAllocationCount() const noexcept;
+
+        bool canDeleteAllAllocatedNodes() const noexcept;
+ 
+    public:
+        void setNextAllocationCount(const std::size_t allocationCount) noexcept;
+
+        template<typename... Args>
+        T* newNode(Args... args);
+
+        void deleteNode(const T* ptr) noexcept;
+
+        void deleteAllAllocatedNodes() noexcept;
+
+    private:
+        struct Chunk;
+
+    private:
+        static const std::size_t defaultAllocationCount = 4096;
+
+        static const std::size_t sizeOfChunk = sizeof(Chunk);
+        
+        static const std::size_t sizeOfT = sizeof(T);
+
+    private:
+        std::size_t allocatedNodesCounter;
+
+        std::size_t inUseAllocatedNodesCounter;
+
+        std::size_t nextAllocationCount;
+
+        std::size_t currentAllocationCount;
+
+        std::size_t currentChunkOffset;
+
+        Chunk* allocated;
+
+        Chunk* lastAllocated;
+    };
+};
+
+#include "Chunk/Chunk.thd"
+#include "ChunkAllocator.tci"
