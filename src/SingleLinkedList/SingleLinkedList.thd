@@ -3,6 +3,7 @@
 #include <cstddef>
 
 #include "NodeAllocator/Operator/Operator.thd"
+#include "../FixedCapacityStack/FixedCapacityStack.thd"
 
 template<typename T, class NodeAllocator = Operator>
 class SingleLinkedList {
@@ -49,12 +50,30 @@ public:
     void bucketSort(BucketSelector bucketSelector, const bool ascOrder = true) noexcept;
 
     template<typename BucketSelector>
-    void bucketSort(const std::size_t bucketsCount, BucketSelector bucketSelector, const bool ascOrder = true) noexcept;
+    void bucketSort(const std::size_t bucketsCount, BucketSelector bucketSelector, const bool ascOrder = true);
+
+public:
+    template<typename Comparator>
+    void mergeSort(Comparator comparator);
 
 private:
     struct Node;
 
     struct List;
+
+private:
+    static unsigned char log2(const std::size_t n) noexcept;
+
+    template<typename Comparator>
+    static Node* mergeNodes(Node* a, Node* b, Comparator comparator) noexcept;
+
+    static Node* advanceAndReturnPrev(Node*& node) noexcept;
+
+    template<typename Comparator>
+    static Node* merge(Node* left, Node* right, Comparator comparator) noexcept;
+
+    template<typename Comparator>
+    static void stackMerge(FixedCapacityStack<Node*>& stack, Comparator comparator) noexcept;
 
 private:
     void destroy() noexcept;

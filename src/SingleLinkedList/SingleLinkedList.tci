@@ -94,6 +94,17 @@ inline void SingleLinkedList<T, NodeAllocator>::append(SingleLinkedList&& other)
 }
 
 template<typename T, class NodeAllocator>
+unsigned char SingleLinkedList<T, NodeAllocator>::log2(const std::size_t n) noexcept {
+    unsigned char res = 0;
+    std::size_t d = n;
+    while(d >> 1) {
+        ++res;
+        d >>= 1;
+    }
+    return res;
+}
+
+template<typename T, class NodeAllocator>
 inline void SingleLinkedList<T, NodeAllocator>::destroy() noexcept {
     if(allocator.canDeleteAllAllocatedNodes()) {
         allocator.deleteAllAllocatedNodes();
@@ -165,11 +176,82 @@ inline void SingleLinkedList<T, NodeAllocator>::bucketSort(BucketSelector bucket
 
 template<typename T, class NodeAllocator>
 template<typename BucketSelector>
-inline void SingleLinkedList<T, NodeAllocator>::bucketSort(const std::size_t bucketsCount, BucketSelector bucketSelector, const bool ascOrder) noexcept {
+inline void SingleLinkedList<T, NodeAllocator>::bucketSort(const std::size_t bucketsCount, BucketSelector bucketSelector, const bool ascOrder) {
     assert(bucketsCount);
     if(shouldSort()) {
         List* buckets = new List[bucketsCount];
         bucketSort(bucketsCount, buckets, bucketSelector, ascOrder);
         delete[] buckets;
+    }
+}
+
+template<typename T, class NodeAllocator>
+template<typename Comparator>
+inline typename SingleLinkedList<T, NodeAllocator>::Node* SingleLinkedList<T, NodeAllocator>::mergeNodes(Node* a, Node* b, Comparator comparator) noexcept {
+    assert(a && b);
+    Node* left;
+    Node* right = comparator(a->value, b->value) ? (left = a, b) : (left = b, a);
+    right->next = nullptr;
+    left->next = right;
+    return left;
+}
+
+template<typename T, class NodeAllocator>
+inline typename SingleLinkedList<T, NodeAllocator>::Node* SingleLinkedList<T, NodeAllocator>::advanceAndReturnPrev(Node*& node) noexcept {
+    Node* res = node;
+    node = node->next;
+    return res;  
+}
+
+template<typename T, class NodeAllocator>
+template<typename Comparator>
+inline typename SingleLinkedList<T, NodeAllocator>::Node* SingleLinkedList<T, NodeAllocator>::merge(Node* left, Node* right, Comparator comparator) noexcept {
+    assert(left && right);
+    List merged;
+    while(left && right) {
+        merged.append(advanceAndReturnPrev((comparator(left->value, right->value) ? left : right)));
+    }
+    merged.tail->next = nullptr;
+    if(left || right) {
+        merged.append(left ? left : right);
+    }
+    return merged.head;
+}
+
+template<typename T, class NodeAllocator>
+template<typename Comparator>
+inline void SingleLinkedList<T, NodeAllocator>::stackMerge(FixedCapacityStack<Node*>& stack, Comparator comparator) noexcept {
+    stack.push(merge(stack.pop(), stack.pop(), comparator));
+}
+
+template<typename T, class NodeAllocator>
+template<typename Comparator>
+inline void SingleLinkedList<T, NodeAllocator>::mergeSort(Comparator comparator) {
+    if(shouldSort()) {
+        const std::size_t tempCount = log2(length()) + 1;
+        Node** temp = new Node*[tempCount];
+        FixedCapacityStack<Node*> stack(tempCount, temp);
+        Node* iter = list.head;
+        std::size_t counter = 0;
+        while(iter && iter->next) {
+            Node* nextIter = iter->next->next;
+            stack.push(mergeNodes(iter, iter->next, comparator));
+            counter += 2;
+            for(std::size_t merges = (counter >> 1); !(merges & 1); merges >>= 1) {
+                stackMerge(stack, comparator);
+            }
+            iter = nextIter;
+        }
+        if(iter) {
+            stack.push(iter);
+        }
+        while(stack.size() > 1) {
+            stackMerge(stack, comparator);
+        }
+        list.tail = list.head = stack.pop();
+        while(list.tail->next) {
+            list.tail = list.tail->next;
+        }
+        delete[] temp;
     }
 }
