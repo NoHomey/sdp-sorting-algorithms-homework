@@ -50,11 +50,17 @@ int main() {
     exams.prepend({examDate, 19, 2});
     exams.prepend({examDate, 19, 2});
 
+    StudentExams copy = exams;
+
     print(exams);
+
+    std::cout << "--------------------copy---------------------" << std::endl;
+
+    print(copy);
 
     exams.mergeSort(lessThanOrEqualAge);
 
-    std::cout << "---------------------------------------------" << std::endl;
+    std::cout << "--------------------merge--------------------" << std::endl;
 
     print(exams);
 
@@ -66,7 +72,7 @@ int main() {
 
     exams.bucketSort<5>(gradeSelector);
 
-    std::cout << "---------------------------------------------" << std::endl;
+    std::cout << "--------------------bucket---------------------" << std::endl;
 
     print(exams);
 
