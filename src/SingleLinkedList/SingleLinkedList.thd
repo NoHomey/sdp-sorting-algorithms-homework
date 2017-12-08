@@ -2,16 +2,23 @@
 
 #include <cstddef>
 
-#include "NodeAllocator/Operator/Operator.thd"
+#include "../NodeAllocator/Operator/Operator.thd"
 #include "../FixedCapacityStack/FixedCapacityStack.thd"
 
 template<typename T, class NodeAllocator = Operator>
 class SingleLinkedList {
+private:
+    struct Node;
+
 public:
     class ConstIterator;
 
+    using Allocator = typename NodeAllocator::template forType<Node>;
+
 public:
     SingleLinkedList() noexcept;
+
+    SingleLinkedList(const Allocator& allocator) noexcept;
 
     SingleLinkedList(const std::size_t allocationCount) noexcept;
 
@@ -55,8 +62,6 @@ public:
     void mergeSort(Comparator comparator);
 
 private:
-    struct Node;
-
     struct List;
 
 private:
@@ -80,6 +85,8 @@ private:
 
     void null() noexcept;
 
+    void copy(const SingleLinkedList& other);
+
     void move(SingleLinkedList&& other) noexcept;
 
     bool shouldSort() const noexcept;
@@ -92,7 +99,7 @@ private:
 private:
     Node* head;
 
-    typename NodeAllocator::template forType<Node> allocator;
+    Allocator allocator;
 };
 
 #include "Node/Node.thd"

@@ -13,15 +13,17 @@ public:
 
         ~forType() noexcept = default;
 
-        forType(const forType& other) noexcept = delete;
+        forType(const forType& other) noexcept;
 
-        forType(forType&& other) noexcept = delete;
+        forType(forType&& other) noexcept = default;
 
-        forType& operator=(const forType& other) noexcept = delete;
+        forType& operator=(const forType& other) noexcept;
 
-        forType& operator=(forType&& other) noexcept = delete;
+        forType& operator=(forType&& other) noexcept = default;
 
     public:
+        bool isShared() const noexcept;
+
         std::size_t allocatedNodes() const noexcept;
 
         std::size_t inUseAllocatedNodes() const noexcept;

@@ -1,0 +1,30 @@
+#pragma once
+
+#include "../Children.thd"
+
+template<typename T>
+struct SparseTrie<T>::Node::Children::Child {
+    Child(const Node& node, Child* left = nullptr, Child* right = nullptr) noexcept;
+
+    Child(Node&& node, Child* left = nullptr, Child* right = nullptr) noexcept;
+
+    ~Child() noexcept = default;
+
+    Child(const Child& other) noexcept = default;
+
+    Child(Child&& other) noexcept = default;
+
+    Child& operator=(const Child& other) noexcept = default;
+
+    Child& operator=(Child&& other) noexcept = default;
+
+    Child* connect(Child* left = nullptr, Child* right = nullptr) noexcept;
+
+    Child* left;
+
+    Child* right;
+    
+    Node node;
+};
+
+#include "Child.tci"

@@ -1,0 +1,7 @@
+#pragma once
+
+#include "Node.thd"
+
+template<typename T>
+inline SparseTrie<T>::Node::Node(const typename Children::Allocator& childrenAllocator, const typename Objects::Allocator& objectsAllocator, const char label) noexcept
+: children{childrenAllocator}, objects{objectsAllocator}, label{label} { }

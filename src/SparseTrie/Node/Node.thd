@@ -1,0 +1,31 @@
+#pragma once
+
+#include "../SparseTrie.thd"
+
+template<typename T>
+struct SparseTrie<T>::Node {
+    class Children;
+
+    using Objects = SingleLinkedList<T, SharedAllocator<ChunkAllocator, false>>;
+
+    Node(const typename Children::Allocator& childrenAllocator , const typename Objects::Allocator& objectsAllocator, const char label = '\0') noexcept;
+
+    ~Node() noexcept = default;
+
+    Node(const Node& other) = default;
+
+    Node(Node&& other) noexcept = default;
+
+    Node& operator=(const Node& other) = default;
+
+    Node& operator=(Node&& other) noexcept = default;
+
+    Children children;
+
+    Objects objects;
+    
+    char label;
+};
+
+#include "Children/Children.thd"
+#include "Node.tci"

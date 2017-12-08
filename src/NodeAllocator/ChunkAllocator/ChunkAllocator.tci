@@ -24,6 +24,52 @@ inline ChunkAllocator::forType<T>::~forType() noexcept {
 }
 
 template<typename T>
+inline ChunkAllocator::forType<T>::forType(forType&& other) noexcept
+: allocatedNodesCounter{other.allocatedNodesCounter},
+inUseAllocatedNodesCounter{other.inUseAllocatedNodesCounter},
+nextAllocationCount{other.nextAllocationCount},
+currentAllocationCount{other.currentAllocationCount},
+currentChunkOffset{other.currentChunkOffset},
+allocated{other.allocated},
+lastAllocated{other.lastAllocated} {
+    other.null();
+}
+
+template<typename T>
+inline ChunkAllocator::forType<T>::forType(const forType& other) noexcept {
+    assert(false);
+}
+
+template<typename T>
+inline typename ChunkAllocator::forType<T>& ChunkAllocator::forType<T>::operator=(forType&& other) noexcept {
+    if(this != &other) {
+        deleteAllAllocatedNodes();
+        allocatedNodesCounter = other.allocatedNodesCounter;
+        inUseAllocatedNodesCounter = other.inUseAllocatedNodesCounter;
+        nextAllocationCount = other.nextAllocationCount;
+        currentAllocationCount = other.currentAllocationCount;
+        currentChunkOffset = other.currentChunkOffset;
+        allocated = other.allocated;
+        lastAllocated = other.lastAllocated;
+        other.null();
+    }
+    return *this;
+}
+
+template<typename T>
+inline typename ChunkAllocator::forType<T>& ChunkAllocator::forType<T>::operator=(const forType& other) noexcept {
+    if(this != &other) {
+        assert(false);
+    }
+    return *this;
+}
+
+template<typename T>
+inline bool ChunkAllocator::forType<T>::isShared() const noexcept {
+    return false;
+}
+
+template<typename T>
 inline std::size_t ChunkAllocator::forType<T>::allocatedNodes() const noexcept {
     return allocatedNodesCounter;
 }
@@ -87,9 +133,15 @@ inline void ChunkAllocator::forType<T>::deleteAllAllocatedNodes() noexcept {
             chunk->~Chunk();
             delete[] reinterpret_cast<char*>(chunk);
         }
-        allocatedNodesCounter = 0;
-        inUseAllocatedNodesCounter = 0;
-        currentChunkOffset = 0;
-        lastAllocated = nullptr;
+        null();
     }
+}
+
+template<typename T>
+inline void ChunkAllocator::forType<T>::null() noexcept {
+    allocatedNodesCounter = 0;
+    inUseAllocatedNodesCounter = 0;
+    currentChunkOffset = 0;
+    allocated = nullptr;
+    lastAllocated = nullptr;
 }

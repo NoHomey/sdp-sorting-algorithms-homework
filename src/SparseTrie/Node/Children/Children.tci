@@ -1,0 +1,136 @@
+#pragma once
+
+#include "Children.thd"
+
+template<typename T>
+inline SparseTrie<T>::Node::Children::Children(const Allocator& allocator) noexcept
+: first{nullptr}, last{nullptr}, allocator{allocator} { }
+
+template<typename T>
+inline SparseTrie<T>::Node::Children::~Children() noexcept {
+    destroy();
+    null();
+}
+
+template<typename T>
+inline SparseTrie<T>::Node::Children::Children(const Children& other)
+: Children{other.allocator} {
+    for(const Child* iter = other.first; iter; iter = iter->right) {
+        append(iter->node);
+    }
+}
+
+template<typename T>
+inline SparseTrie<T>::Node::Children::Children(Children&& other) noexcept
+: Children{other.allocator} {
+    move(std::move(other));
+}
+
+template<typename T>
+inline typename SparseTrie<T>::Node::Children& SparseTrie<T>::Node::Children::operator=(const Children& other) {
+    if(this != &other) {
+        move({other});
+    }
+    return *this;
+}
+
+template<typename T>
+inline typename SparseTrie<T>::Node::Children& SparseTrie<T>::Node::Children::operator=(Children&& other) noexcept {
+    if(this != &other) {
+        move(std::move(other));
+    }
+    return *this;
+}
+
+template<typename T>
+inline bool SparseTrie<T>::Node::Children::hasAny() const noexcept {
+    return first;
+}
+
+template<typename T>
+inline const typename SparseTrie<T>::Node* SparseTrie<T>::Node::Children::find(const char label) const noexcept {
+    return const_cast<SparseTrie<T>::Node::Children* const>(this)->find(label);
+}
+
+template<typename T>
+inline typename SparseTrie<T>::Node* SparseTrie<T>::Node::Children::insert(const Node& child) {
+    return insert(allocator.newNode(child));
+}
+
+template<typename T>
+inline typename SparseTrie<T>::Node* SparseTrie<T>::Node::Children::insert(Node&& child) {
+    return insert(allocator.newNode(std::move(child)));
+}
+
+template<typename T>
+inline typename SparseTrie<T>::Node* SparseTrie<T>::Node::Children::find(const char label) noexcept {
+    if(hasAny()) {
+        if(first->node.label == label) {
+            return &first->node;
+        } else if(last->node.label == label) {
+            return &last->node;
+        } else {
+            for(Child* iter = first->right; iter; iter = iter->right) {
+                if(iter->node.label == label) {
+                    return &iter->node;
+                }
+            }
+        }
+    }
+    return nullptr;
+}
+
+template<typename T>
+inline void SparseTrie<T>::Node::Children::destroy() noexcept {
+    if(allocator.canDeleteAllAllocatedNodes()) {
+        allocator.deleteAllAllocatedNodes();
+    } else {
+        Child* temp;
+        while(first) {
+            temp = first;
+            first = first->right;
+            allocator.deleteNode(temp);
+        }
+    }
+}
+
+template<typename T>
+inline void SparseTrie<T>::Node::Children::null() noexcept {
+    first = last = nullptr;
+}
+
+template<typename T>
+inline void SparseTrie<T>::Node::Children::move(Children&& other) noexcept {
+    destroy();
+    first = other.first;
+    last = other.last;
+    allocator = std::move(other.allocator);
+    other.null();
+}
+
+template<typename T>
+inline void SparseTrie<T>::Node::Children::append(Child* child) noexcept {
+    last = hasAny() ? (last->right = child) : (first = child);
+}
+
+template<typename T>
+inline void SparseTrie<T>::Node::Children::prepend(Child* child) noexcept {
+    first = hasAny() ? (first->left = child) : (last = child);
+}
+
+template<typename T>
+inline typename SparseTrie<T>::Node* SparseTrie<T>::Node::Children::insert(Child* child) noexcept {
+    if(!hasAny() || (child->node.label <= first->node.label)) {
+        prepend(child);
+    } else if(child->node.label >= last->node.label) {
+        append(child);
+    } else {
+        for(Child* iter = first->right; true; iter = iter->right) {
+            if(iter->node.label >= child->node.label) {
+                iter->left = iter->left->right = child->connect(iter->left, iter);
+                break;
+            }
+        }
+    }
+    return &child->node;
+}

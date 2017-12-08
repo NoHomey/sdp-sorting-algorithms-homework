@@ -1,0 +1,62 @@
+#pragma once
+
+#include <cstddef>
+#include "../Pair.thd"
+#include "../SingleLinkedList/SingleLinkedList.thd"
+#include "../NodeAllocator/SharedAllocator/SharedAllocator.thd"
+#include "../NodeAllocator/ChunkAllocator/ChunkAllocator.thd"
+
+template<typename T>
+class SparseTrie {
+public:
+    SparseTrie() noexcept;
+
+    ~SparseTrie() noexcept = default;
+
+    SparseTrie(const SparseTrie& other) = delete;
+
+    SparseTrie(SparseTrie&& other) noexcept = delete;
+
+    SparseTrie& operator=(const SparseTrie& other) = delete;
+
+    SparseTrie& operator=(SparseTrie&& other) noexcept = delete;
+
+public:
+    std::size_t size() const noexcept;
+
+public:
+    void insert(const char* key, const T& value);
+
+    void insert(const char* key, T&& value);
+
+private:
+    struct Node;
+
+    using ObjectsAllocator = typename Node::Objects::Allocator::SharedAllocatorType;
+
+    using ChildrenAllocator = typename Node::Children::Allocator::SharedAllocatorType;
+
+private:
+    Pair<std::size_t, Node*> findPrefix(const char* key) noexcept;
+
+    template<typename V>
+    void insertValue(const char* key, V value);
+
+private:
+    std::size_t count;
+
+    std::size_t maxKeyLength;
+
+    ObjectsAllocator objectsAllocator;
+
+    typename Node::Objects::Allocator sharedObjectsAllocator;
+
+    ChildrenAllocator childrenAllocator;
+
+    typename Node::Children::Allocator sharedChildrenAllocator;
+
+    Node root;
+};
+
+#include "Node/Node.thd"
+#include "SparseTrie.tci"

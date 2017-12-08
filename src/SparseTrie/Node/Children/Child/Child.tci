@@ -1,0 +1,19 @@
+#pragma once
+
+#include "Child.thd"
+#include <utility>
+
+template<typename T>
+inline SparseTrie<T>::Node::Children::Child::Child(const Node& node, Child* left, Child* right) noexcept
+: left{left}, right{right}, node{node} { }
+
+template<typename T>
+inline SparseTrie<T>::Node::Children::Child::Child(Node&& node, Child* left, Child* right) noexcept
+: left{left}, right{right}, node{std::move(node)} { }
+
+template<typename T>
+inline typename SparseTrie<T>::Node::Children::Child* SparseTrie<T>::Node::Children::Child::connect(Child* left, Child* right) noexcept {
+    this->left = left;
+    this->right = right;
+    return this;
+}

@@ -13,6 +13,24 @@ inline Operator::forType<T>::forType(const std::size_t) noexcept
 : forType{} { }
 
 template<typename T>
+inline Operator::forType<T>::forType(const forType& other) noexcept {
+    assert(false);
+}
+
+template<typename T>
+inline typename Operator::forType<T>& Operator::forType<T>::operator=(const forType& other) noexcept {
+    if(this != &other) {
+        assert(false);
+    }
+    return *this;
+}
+
+template<typename T>
+inline bool Operator::forType<T>::isShared() const noexcept {
+    return false;
+}
+
+template<typename T>
 inline std::size_t Operator::forType<T>::allocatedNodes() const noexcept {
     return counter;
 }

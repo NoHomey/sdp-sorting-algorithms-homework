@@ -8,6 +8,10 @@ inline SingleLinkedList<T, NodeAllocator>::SingleLinkedList() noexcept
 : head{nullptr}, allocator{} { }
 
 template<typename T, class NodeAllocator>
+inline SingleLinkedList<T, NodeAllocator>::SingleLinkedList(const Allocator& allocator) noexcept
+: head{nullptr}, allocator{allocator} { }
+
+template<typename T, class NodeAllocator>
 inline SingleLinkedList<T, NodeAllocator>::SingleLinkedList(const std::size_t allocationCount) noexcept
 : head{nullptr}, allocator{allocationCount} { }
 
@@ -20,11 +24,10 @@ inline SingleLinkedList<T, NodeAllocator>::~SingleLinkedList() noexcept {
 template<typename T, class NodeAllocator>
 inline SingleLinkedList<T, NodeAllocator>::SingleLinkedList(const SingleLinkedList& other)
 : SingleLinkedList{} {
-    List temp;
-    for(const Node* iter = other.head; iter; iter = iter->next) {
-        temp.append(allocator.newNode(iter->value));
+    if(other.allocator.isShared()) {
+        allocator = other.allocator;
     }
-    head = temp.head;
+    copy(other);
 }
 
 template<typename T, class NodeAllocator>
@@ -127,8 +130,18 @@ inline void SingleLinkedList<T, NodeAllocator>::null() noexcept {
 }
 
 template<typename T, class NodeAllocator>
+inline void SingleLinkedList<T, NodeAllocator>::copy(const SingleLinkedList& other) {
+    List temp;
+    for(const Node* iter = other.head; iter; iter = iter->next) {
+        temp.append(allocator.newNode(iter->value));
+    }
+    head = temp.head;
+}
+
+template<typename T, class NodeAllocator>
 inline void SingleLinkedList<T, NodeAllocator>::move(SingleLinkedList&& other) noexcept {
     destroy();
+    allocator = std::move(other.allocator);
     head = other.head;
     other.null();
 }

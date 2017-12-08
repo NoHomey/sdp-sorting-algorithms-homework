@@ -1,0 +1,63 @@
+#pragma once
+
+#include "SparseTrie.thd"
+#include <cassert>
+#include <utility>
+#include <cstring>
+
+template<typename T>
+inline SparseTrie<T>::SparseTrie() noexcept
+: count{0},
+maxKeyLength{0},
+objectsAllocator{},
+sharedObjectsAllocator{&objectsAllocator},
+childrenAllocator{},
+sharedChildrenAllocator{&childrenAllocator},
+root{sharedChildrenAllocator, sharedObjectsAllocator} { }
+
+template<typename T>
+inline std::size_t SparseTrie<T>::size() const noexcept {
+    return count;
+}
+
+template<typename T>
+inline void SparseTrie<T>::insert(const char* key, const T& value) {
+    insertValue<const T&>(key, value);
+}
+
+template<typename T>
+inline void SparseTrie<T>::insert(const char* key, T&& value) {
+    insertValue<T&&>(key, std::move(value));
+}
+
+template<typename T>
+template<typename V>
+inline void SparseTrie<T>::insertValue(const char* key, V value) {
+    const std::size_t keyLength = std::strlen(key);
+    Pair<std::size_t, Node*> prefixResult = findPrefix(key);
+    Node* node = prefixResult.second;
+    for(std::size_t index = prefixResult.first; index < keyLength; ++index) {
+        node = node->children.insert({sharedChildrenAllocator, sharedObjectsAllocator, key[index]});
+    }
+    node->objects.prepend(std::forward<V>(value));
+    ++count;
+    if(keyLength > maxKeyLength) {
+        maxKeyLength = keyLength;
+    }
+}
+
+template<typename T>
+inline Pair<std::size_t, typename SparseTrie<T>::Node*> SparseTrie<T>::findPrefix(const char* key) noexcept {
+    assert(key && key[0]);
+    std::size_t prefixLength = 0;
+    Node* node = &root;
+    for(; key[prefixLength] != '\0'; ++prefixLength) {
+        Node* next = node->children.find(key[prefixLength]);
+        if(next) {
+            node = next;
+        } else {
+            break;
+        }
+    }
+    return {prefixLength, node};
+}

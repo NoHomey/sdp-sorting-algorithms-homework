@@ -13,15 +13,17 @@ public:
 
         ~forType() noexcept;
 
-        forType(const forType& other) noexcept = delete;
+        forType(const forType& other) noexcept;
 
-        forType(forType&& other) noexcept = delete;
+        forType(forType&& other) noexcept;
 
-        forType& operator=(const forType& other) noexcept = delete;
+        forType& operator=(const forType& other) noexcept;
 
-        forType& operator=(forType&& other) noexcept = delete;
+        forType& operator=(forType&& other) noexcept;
 
     public:
+        bool isShared() const noexcept;
+
         std::size_t allocatedNodes() const noexcept;
 
         std::size_t inUseAllocatedNodes() const noexcept;
@@ -39,6 +41,9 @@ public:
         void deleteNode(const T* ptr) noexcept;
 
         void deleteAllAllocatedNodes() noexcept;
+
+    private:
+        void null() noexcept;
 
     private:
         struct Chunk;

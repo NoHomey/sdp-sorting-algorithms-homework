@@ -1,0 +1,60 @@
+#pragma once
+
+#include "../Node.thd"
+
+template<typename T>
+class SparseTrie<T>::Node::Children {
+private:
+    struct Child;
+
+public:
+    using Allocator = SharedAllocator<ChunkAllocator, false>::forType<Child>;
+
+public:
+    Children(const Allocator& allocator) noexcept;
+
+    ~Children() noexcept;
+
+    Children(const Children& other);
+
+    Children(Children&& other) noexcept;
+
+    Children& operator=(const Children& other);
+
+    Children& operator=(Children&& other) noexcept;
+
+public:
+    bool hasAny() const noexcept;
+
+    const Node* find(const char label) const noexcept;
+
+public:
+    Node* insert(const Node& child);
+
+    Node* insert(Node&& child);
+
+    Node* find(const char label) noexcept;
+
+private:
+    void destroy() noexcept;
+
+    void null() noexcept;
+
+    void move(Children&& other) noexcept;
+
+    void append(Child* child) noexcept;
+
+    void prepend(Child* child) noexcept;
+
+    Node* insert(Child* child) noexcept;
+
+private:
+    Child* first;
+    
+    Child* last;
+
+    Allocator allocator;
+};
+
+#include "Child/Child.thd"
+#include "Children.tci"

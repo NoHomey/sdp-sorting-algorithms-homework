@@ -2,12 +2,13 @@
 
 Objects = ExamDate StudentExam
 
+mainFile = trieTest.cc
+
 all: $(addsuffix .o,$(Objects))
-	$(COMPILER) test.cc $^
+	$(COMPILER) $(mainFile) $^
 
 clean:
 	rm -f *.o
-
 
 CXXFLAGS = -g -std=c++14 -Wall -Wextra -Wpedantic 
 

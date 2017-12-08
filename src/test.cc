@@ -1,7 +1,7 @@
 #include <iostream>
 #include "StudentExam/StudentExam.h"
 #include "SingleLinkedList/SingleLinkedList.thd"
-#include "SingleLinkedList/NodeAllocator/ChunkAllocator/ChunkAllocator.thd"
+#include "NodeAllocator/ChunkAllocator/ChunkAllocator.thd"
 
 using StudentExams = SingleLinkedList<StudentExam, ChunkAllocator>;
 

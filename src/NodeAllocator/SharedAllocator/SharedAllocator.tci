@@ -1,0 +1,75 @@
+#pragma once
+
+#include "SharedAllocator.thd"
+#include <utility>
+#include <cassert>
+
+template<typename NodeAllocator, const bool canDelete>
+template<typename T>
+inline SharedAllocator<NodeAllocator, canDelete>::forType<T>::forType(SharedAllocatorType* allocator) noexcept
+: allocator{allocator} { }
+
+template<typename NodeAllocator, const bool canDelete>
+template<typename T>
+inline std::size_t SharedAllocator<NodeAllocator, canDelete>::forType<T>::allocatedNodes() const noexcept {
+    assert(allocator);
+    return allocator->allocatedNodes();
+}
+
+template<typename NodeAllocator, const bool canDelete>
+template<typename T>
+inline std::size_t SharedAllocator<NodeAllocator, canDelete>::forType<T>::inUseAllocatedNodes() const noexcept {
+    assert(allocator);
+    return allocator->inUseAllocatedNodes();
+}
+
+template<typename NodeAllocator, const bool canDelete>
+template<typename T>
+inline std::size_t SharedAllocator<NodeAllocator, canDelete>::forType<T>::getNextAllocationCount() const noexcept {
+    assert(allocator);
+    return allocator->getNextAllocationCount();
+}
+
+template<typename NodeAllocator, const bool canDelete>
+template<typename T>
+inline bool SharedAllocator<NodeAllocator, canDelete>::forType<T>::canDeleteAllAllocatedNodes() const noexcept {
+    return allocator ? allocator->canDeleteAllAllocatedNodes() : true;
+}
+
+template<typename NodeAllocator, const bool canDelete>
+template<typename T>
+inline bool SharedAllocator<NodeAllocator, canDelete>::forType<T>::isShared() const noexcept {
+    return true;
+}
+ 
+template<typename NodeAllocator, const bool canDelete>
+template<typename T>
+inline void SharedAllocator<NodeAllocator, canDelete>::forType<T>::setNextAllocationCount(const std::size_t allocationCount) noexcept {
+    assert(allocator);
+    allocator->setNexAllocationCount(allocationCount);
+}
+
+template<typename NodeAllocator, const bool canDelete>
+template<typename T>
+template<typename... Args>
+T* SharedAllocator<NodeAllocator, canDelete>::forType<T>::newNode(Args... args) {
+    assert(allocator);
+    return allocator->newNode(std::forward<Args>(args)...);
+}
+
+template<typename NodeAllocator, const bool canDelete>
+template<typename T>
+inline void SharedAllocator<NodeAllocator, canDelete>::forType<T>::deleteNode(const T* ptr) noexcept {
+    if(canDelete) {
+        assert(allocator);
+        allocator->deleteNode(ptr);
+    }
+}
+
+template<typename NodeAllocator, const bool canDelete>
+template<typename T>
+inline void SharedAllocator<NodeAllocator, canDelete>::forType<T>::deleteAllAllocatedNodes() noexcept {
+    if(canDelete && allocator) {
+        allocator->deleteAllAllocatedNodes();
+    }
+}
