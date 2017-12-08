@@ -211,7 +211,6 @@ inline typename SingleLinkedList<T, NodeAllocator>::Node* SingleLinkedList<T, No
     while(left && right) {
         merged.append(advanceAndReturnPrev((comparator(left->value, right->value) ? left : right)));
     }
-    merged.tail->next = nullptr;
     if(left || right) {
         merged.append(left ? left : right);
     }
@@ -228,22 +227,23 @@ template<typename T, class NodeAllocator>
 template<typename Comparator>
 inline void SingleLinkedList<T, NodeAllocator>::mergeSort(Comparator comparator) {
     if(shouldSort()) {
-        const std::size_t tempCount = log2(length()) + 1;
+        const std::size_t tempCount = log2(length());
         Node** temp = new Node*[tempCount];
         FixedCapacityStack<Node*> stack(tempCount, temp);
         Node* iter = list.head;
         std::size_t counter = 0;
-        while(iter && iter->next) {
+        while(iter) {
             Node* nextIter = iter->next->next;
             stack.push(mergeNodes(iter, iter->next, comparator));
+            if(nextIter == list.tail) {
+                stack.push(merge(stack.pop(), nextIter, comparator));
+                nextIter = nullptr;
+            }
             counter += 2;
             for(std::size_t merges = (counter >> 1); !(merges & 1); merges >>= 1) {
                 stackMerge(stack, comparator);
             }
             iter = nextIter;
-        }
-        if(iter) {
-            stack.push(iter);
         }
         while(stack.size() > 1) {
             stackMerge(stack, comparator);
