@@ -39,11 +39,9 @@ public:
 public:
     void setNextAllocationCount(const std::size_t allocationCount) noexcept;
 
-    void append(const T& value);
+    void prepend(const T& value);
 
-    void append(T&& value);
-
-    void append(SingleLinkedList&& other) noexcept;
+    void prepend(T&& value);
 
 public:
     template<const std::size_t bucketsCount, typename BucketSelector>
@@ -63,6 +61,8 @@ private:
 
 private:
     static unsigned char log2(const std::size_t n) noexcept;
+
+    void prepend(Node* node) noexcept;
 
     template<typename Comparator>
     static Node* mergeNodes(Node* a, Node* b, Comparator comparator) noexcept;
@@ -84,13 +84,13 @@ private:
 
     bool shouldSort() const noexcept;
 
-    void appendBucket(const List& bucket) noexcept;
+    void appendBucket(List& result, const List& bucket) noexcept;
 
     template<typename BucketSelector>
     void bucketSort(const std::size_t bucketsCount, List* buckets, BucketSelector bucketSelector, const bool ascOrder) noexcept;
 
 private:
-    List list;
+    Node* head;
 
     typename NodeAllocator::template forType<Node> allocator;
 };
