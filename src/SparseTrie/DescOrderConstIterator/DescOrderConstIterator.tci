@@ -1,63 +1,54 @@
 #pragma once
 
-#include "AscOrderConstIterator.thd"
+#include "DescOrderConstIterator.thd"
 #include <cassert>
 
 template<typename T>
-inline SparseTrie<T>::AscOrderConstIterator::operator bool() const noexcept {
+inline SparseTrie<T>::DescOrderConstIterator::operator bool() const noexcept {
     return isValid();
 }
 
 template<typename T>
-inline bool SparseTrie<T>::AscOrderConstIterator::operator==(const AscOrderConstIterator& other) const noexcept {
+inline bool SparseTrie<T>::DescOrderConstIterator::operator==(const DescOrderConstIterator& other) const noexcept {
     return (trie == other.trie) && (objectsIterator = other.objectsIterator);
 }
 
 template<typename T>
-inline bool SparseTrie<T>::AscOrderConstIterator::operator!=(const AscOrderConstIterator& other) const noexcept {
+inline bool SparseTrie<T>::DescOrderConstIterator::operator!=(const DescOrderConstIterator& other) const noexcept {
     return !operator=(other);
 }
 
 template<typename T>
-inline bool SparseTrie<T>::AscOrderConstIterator::operator!() const noexcept {
+inline bool SparseTrie<T>::DescOrderConstIterator::operator!() const noexcept {
     return !isValid();
 }
 
 template<typename T>
-inline Pair<const char*, const T&> SparseTrie<T>::AscOrderConstIterator::operator*() const noexcept {
+inline Pair<const char*, const T&> SparseTrie<T>::DescOrderConstIterator::operator*() const noexcept {
     assert(isValid());
     return {const_cast<const char*>(path), *objectsIterator};
 }
 
 template<typename T>
-inline typename SparseTrie<T>::AscOrderConstIterator& SparseTrie<T>::AscOrderConstIterator::operator++() noexcept {
+inline typename SparseTrie<T>::DescOrderConstIterator& SparseTrie<T>::DescOrderConstIterator::operator++() noexcept {
     if(isValid()) {
         ++objectsIterator;
         if(!objectsIterator) {
-            const Node* top = stack.top();
-            if(top->children.hasAny()) {
-                top = *(top->children.first());
-                stack.push(top);
-                objectsIterator = top->objects.first();
-                path[pathLength++] = top->label;
-                tryToMoveDown();
-            } else {
-                next();
-            }
+            next();
         }
     }
     return *this;
 }
 
 /*template<typename T>
-inline typename SparseTrie<T>::AscOrderConstIterator SparseTrie<T>::AscOrderConstIterator::operator++(int) noexcept {
+inline typename SparseTrie<T>::DescOrderConstIterator SparseTrie<T>::DescOrderConstIterator::operator++(int) noexcept {
     ConstIterator copy = *this;
     operator++();
     return copy;
 }*/
 
 template<typename T>
-inline SparseTrie<T>::AscOrderConstIterator::AscOrderConstIterator(const SparseTrie<T>* trie) noexcept
+inline SparseTrie<T>::DescOrderConstIterator::DescOrderConstIterator(const SparseTrie<T>* trie) noexcept
 : trie{trie},
 path{new char[trie->maxKeyLength + 1]},
 pathLength{0},
@@ -68,17 +59,17 @@ objectsIterator{trie->root.objects.first()} {
 }
 
 template<typename T>
-inline SparseTrie<T>::AscOrderConstIterator::~AscOrderConstIterator() noexcept {
+inline SparseTrie<T>::DescOrderConstIterator::~DescOrderConstIterator() noexcept {
     delete[] stack.data();
     delete[] path;
 }
 
 template<typename T>
-void SparseTrie<T>::AscOrderConstIterator::tryToMoveDown() noexcept {
+void SparseTrie<T>::DescOrderConstIterator::tryToMoveDown() noexcept {
     const Node* node = stack.top();
     bool movedDown = false;
-    while(node->objects.isEmpty() && node->children.hasAny()) {
-        node = *(node->children.first());
+    while(node->children.hasAny()) {
+        node = *(node->children.last());
         stack.push(node);
         path[pathLength++] = node->label;
         movedDown = true;
@@ -90,19 +81,19 @@ void SparseTrie<T>::AscOrderConstIterator::tryToMoveDown() noexcept {
 }
 
 template<typename T>
-void SparseTrie<T>::AscOrderConstIterator::next() noexcept {
+void SparseTrie<T>::DescOrderConstIterator::next() noexcept {
     const Node* node = stack.pop();
     while(!stack.isEmpty()) {
         const Node* parent = stack.top();
         if(parent->children.hasAny()) {
-            typename Node::Children::ConstIterator iter = parent->children.last();
+            typename Node::Children::ConstIterator iter = parent->children.first();
             bool hasMoreChildren = false;
             while(node != (*iter)) {
-                --iter;
+                ++iter;
                 hasMoreChildren = true;
             }
             if(hasMoreChildren) {
-                ++iter;
+                --iter;
                 node = *iter;
                 stack.push(node);
                 objectsIterator = node->objects.first();
@@ -111,12 +102,17 @@ void SparseTrie<T>::AscOrderConstIterator::next() noexcept {
                 return;
             }
         }
+        if(!parent->objects.isEmpty()) {
+            path[--pathLength] = '\0';
+            objectsIterator = parent->objects.first();
+            return;
+        }
         node = stack.pop();
         --pathLength;
     }
 }
 
 template<typename T>
-inline bool SparseTrie<T>::AscOrderConstIterator::isValid() const noexcept {
+inline bool SparseTrie<T>::DescOrderConstIterator::isValid() const noexcept {
     return static_cast<bool>(objectsIterator);
 }

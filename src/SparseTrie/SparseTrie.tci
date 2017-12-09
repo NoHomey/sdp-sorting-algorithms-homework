@@ -37,6 +37,11 @@ inline typename SparseTrie<T>::AscOrderConstIterator SparseTrie<T>::ascOrderFirs
 }
 
 template<typename T>
+inline typename SparseTrie<T>::DescOrderConstIterator SparseTrie<T>::descOrderFirst() const noexcept {
+    return {this};
+}
+
+template<typename T>
 template<typename V>
 inline void SparseTrie<T>::insertValue(const char* key, V value) {
     assert(key && key[0]);

@@ -35,6 +35,12 @@ public:
 public:
     AscOrderConstIterator ascOrderFirst() const noexcept;
 
+public:
+    class DescOrderConstIterator;
+
+public:
+    DescOrderConstIterator descOrderFirst() const noexcept;
+
 private:
     struct Node;
 
@@ -68,4 +74,5 @@ private:
 
 #include "Node/Node.thd"
 #include "AscOrderConstIterator/AscOrderConstIterator.thd"
+#include "DescOrderConstIterator/DescOrderConstIterator.thd"
 #include "SparseTrie.tci"

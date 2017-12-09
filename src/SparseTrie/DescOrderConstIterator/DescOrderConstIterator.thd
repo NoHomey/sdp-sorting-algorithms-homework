@@ -1,0 +1,60 @@
+#pragma once
+
+#include "../SparseTrie.thd"
+#include "../../FixedCapacityStack/FixedCapacityStack.thd"
+
+template<typename T>
+class SparseTrie<T>::DescOrderConstIterator {
+    friend SparseTrie<T>;
+
+public:
+    DescOrderConstIterator() = delete;
+
+    ~DescOrderConstIterator() noexcept;
+
+    DescOrderConstIterator(const DescOrderConstIterator& other) = delete;
+
+    DescOrderConstIterator(DescOrderConstIterator&& other) noexcept = default;
+
+    DescOrderConstIterator& operator=(const DescOrderConstIterator& other) = delete;
+
+    DescOrderConstIterator& operator=(DescOrderConstIterator&& other) noexcept = delete;
+
+public:
+    explicit operator bool() const noexcept;
+
+    bool operator==(const DescOrderConstIterator& other) const noexcept;
+
+    bool operator!=(const DescOrderConstIterator& other) const noexcept;
+
+    bool operator!() const noexcept;
+
+    Pair<const char*, const T&> operator*() const noexcept;
+
+public:
+    DescOrderConstIterator& operator++() noexcept;
+
+    //DescOrderConstIterator operator++(int) noexcept;
+
+private:
+    DescOrderConstIterator(const SparseTrie<T>* trie) noexcept;
+
+    void tryToMoveDown() noexcept;
+
+    void next() noexcept;
+
+    bool isValid() const noexcept;
+
+private:
+    const SparseTrie<T>* trie;
+
+    char* path;
+
+    std::size_t pathLength;
+
+    FixedCapacityStack<const SparseTrie<T>::Node*> stack;
+
+    typename SparseTrie<T>::Node::Objects::ConstIterator objectsIterator;
+};
+
+#include "DescOrderConstIterator.tci"

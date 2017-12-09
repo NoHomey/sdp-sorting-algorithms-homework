@@ -41,7 +41,7 @@ private:
 
     void tryToMoveDown() noexcept;
 
-    void moveUp() noexcept;
+    void next() noexcept;
 
     bool isValid() const noexcept;
 
