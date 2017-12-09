@@ -54,7 +54,14 @@ SingleLinkedList<T, NodeAllocator>& SingleLinkedList<T, NodeAllocator>::operator
 
 template<typename T, class NodeAllocator>
 inline std::size_t SingleLinkedList<T, NodeAllocator>::length() const noexcept {
-    return allocator.inUseAllocatedNodes();
+    if(!allocator.isShared()) {
+        return allocator.inUseAllocatedNodes();
+    }
+    std::size_t counter = 0;
+    for(const Node* iter = head; iter; iter = iter->next) {
+        ++counter;
+    }
+    return counter;
 }
 
 template<typename T, class NodeAllocator>

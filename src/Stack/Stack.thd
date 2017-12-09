@@ -1,0 +1,61 @@
+#pragma once
+
+#include <cstddef>
+
+template<typename T>
+class Stack {
+public:
+    Stack() noexcept;
+
+    ~Stack() noexcept;
+
+    Stack(const std::size_t initialCapacity);
+
+    Stack(const Stack& other);
+
+    Stack(Stack&& other) noexcept;
+
+    Stack& operator=(const Stack& other);
+
+    Stack& operator=(Stack&& other) noexcept;
+
+public:
+    bool isEmpty() const noexcept;
+
+    bool isFull() const noexcept;
+
+    std::size_t capacity() const noexcept;
+
+    std::size_t size() const noexcept;
+
+    const T& top() const noexcept;
+
+    const T* data() const noexcept;
+
+public:
+    T* data() noexcept;
+
+    void empty() noexcept;
+
+    void pop() noexcept;
+
+    void push(const T& value);
+
+    void push(T&& value);
+
+private:
+    void null() noexcept;
+
+    void destroy() noexcept;
+
+    void ensureCapacity();
+
+private:
+    std::size_t stackCapacity;
+
+    std::size_t stackSize;
+
+    T* stackData;
+};
+
+#include "Stack.tci"

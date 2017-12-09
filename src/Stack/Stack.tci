@@ -1,0 +1,144 @@
+#pragma once
+
+#include "Stack.thd"
+#include <cassert>
+#include <utility>
+
+template<typename T>
+inline Stack<T>::Stack() noexcept
+: stackCapacity{0}, stackSize{0}, stackData{nullptr} { }
+
+template<typename T>
+inline Stack<T>::Stack(const std::size_t initialCapacity)
+: Stack{} {
+    if(initialCapacity) {
+        stackData = new T[initialCapacity];
+        stackCapacity = initialCapacity;
+    }
+}
+
+template<typename T>
+inline Stack<T>::Stack(Stack&& other) noexcept
+: stackCapacity{other.stackCapacity}, stackSize{other.stackSize}, stackData{other.stackData} {
+    other.null();
+}
+
+template<typename T>
+inline Stack<T>::~Stack() noexcept {
+    destroy();
+    null();
+}
+
+template<typename T>
+inline Stack<T>::Stack(const Stack& other)
+: Stack{other.stackSize} {
+    for(; stackSize < other.stackSize; ++stackSize) {
+        stackData[stackSize] = other.stackData[stackSize];
+    }
+}
+
+template<typename T>
+inline Stack<T>& Stack<T>::operator=(const Stack& other) {
+    if(this != &other) {
+        operator=({other});
+    }
+    return *this;
+}
+
+template<typename T>
+inline Stack<T>& Stack<T>::operator=(Stack&& other) noexcept {
+    if(this != &other) {
+        destroy();
+        stackData = other.stackData;
+        stackSize = other.stackSize;
+        stackCapacity = other.stackCapacity;
+        other.null();
+    }
+    return *this;
+}
+
+template<typename T>
+inline bool Stack<T>::isEmpty() const noexcept {
+    return !stackSize;
+}
+
+template<typename T>
+inline bool Stack<T>::isFull() const noexcept {
+    return stackSize == stackCapacity;
+}
+
+template<typename T>
+inline std::size_t Stack<T>::capacity() const noexcept {
+    return stackCapacity;
+}
+
+template<typename T>
+inline std::size_t Stack<T>::size() const noexcept {
+    return stackSize;
+}
+
+template<typename T>
+inline const T& Stack<T>::top() const noexcept {
+    assert(!isEmpty());
+    return stackData[stackSize - 1];
+}
+
+template<typename T>
+inline const T* Stack<T>::data() const noexcept {
+    return const_cast<Stack<T>* const>(this)->data();
+}
+
+template<typename T>
+inline T* Stack<T>::data() noexcept {
+    return stackData;
+}
+
+template<typename T>
+inline void Stack<T>::empty() noexcept {
+    stackSize = 0;
+}
+
+template<typename T>
+inline void Stack<T>::pop() noexcept {
+    assert(!isEmpty());
+    --stackSize;
+}
+
+template<typename T>
+inline void Stack<T>::push(const T& value) {
+    assert(!isFull());
+    ensureCapacity();
+    stackData[stackSize++] = value;
+}
+
+template<typename T>
+inline void Stack<T>::push(T&& value) {
+    assert(!isFull());
+    ensureCapacity();
+    stackData[stackSize++] = std::move(value);
+}
+
+template<typename T>
+inline void Stack<T>::null() noexcept {
+    stackCapacity = 0;
+    stackSize = 0;
+    stackData = nullptr;
+}
+
+template<typename T>
+inline void Stack<T>::destroy() noexcept {
+    delete[] stackData;
+}
+
+template<typename T>
+inline void Stack<T>::ensureCapacity() {
+    if(isFull() && !isEmpty()) {
+        T* temp = new T[stackCapacity << 1];
+        for(std::size_t i = 0; i < stackSize; ++i) {
+            temp[i] = stackData[i];
+        }
+        delete[] stackData;
+        stackData = temp;
+        stackCapacity <<= 1;
+    }
+}

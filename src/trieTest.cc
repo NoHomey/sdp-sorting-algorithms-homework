@@ -43,7 +43,7 @@ int main() {
 
     std::cout << trie.size() << std::endl;
 
-    /*{
+    {
         SparseTrie<StudentExam>::AscOrderConstIterator iter = trie.ascOrderFirst();
         for(std::size_t i = 0; iter; ++iter, ++i) {
             auto res = *iter;
@@ -57,7 +57,7 @@ int main() {
             auto res = *iter;
             std::cout << i << ' ' << res.first << ' ' << res.second;
         }
-    }*/
+    }
 
     SparseTrie<StudentExam>::AscOrderConstIterator iter = trie.ascOrderFirst();
 
