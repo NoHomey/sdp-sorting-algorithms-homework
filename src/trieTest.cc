@@ -41,10 +41,20 @@ int main() {
 
     std::cout << trie.size() << std::endl;
 
-    SparseTrie<StudentExam>::DescOrderConstIterator iter = trie.descOrderFirst();
-    for(std::size_t i = 0; iter; ++iter, ++i) {
-        auto res = *iter;
-        std::cout << i << ' ' << res.first << ' ' << res.second;
+    {
+        SparseTrie<StudentExam>::AscOrderConstIterator iter = trie.ascOrderFirst();
+        for(std::size_t i = 0; iter; ++iter, ++i) {
+            auto res = *iter;
+            std::cout << i << ' ' << res.first << ' ' << res.second;
+        }
+    }
+
+    {
+        SparseTrie<StudentExam>::DescOrderConstIterator iter = trie.descOrderFirst();
+        for(std::size_t i = 0; iter; ++iter, ++i) {
+            auto res = *iter;
+            std::cout << i << ' ' << res.first << ' ' << res.second;
+        }
     }
 
     return 0;

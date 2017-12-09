@@ -4,66 +4,77 @@
 #include <cassert>
 
 template<typename T>
-inline SparseTrie<T>::Node::Children::ConstIterator::operator bool() const noexcept {
+template<const bool reverse>
+inline SparseTrie<T>::Node::Children::ConstIterator<reverse>::operator bool() const noexcept {
     return isValid();
 }
 
 template<typename T>
-inline bool SparseTrie<T>::Node::Children::ConstIterator::operator==(const ConstIterator& other) const noexcept {
+template<const bool reverse>
+inline bool SparseTrie<T>::Node::Children::ConstIterator<reverse>::operator==(const ConstIterator& other) const noexcept {
     return (children == other.children) && (child == other.child);
 }
 
 template<typename T>
-inline bool SparseTrie<T>::Node::Children::ConstIterator::operator!=(const ConstIterator& other) const noexcept {
+template<const bool reverse>
+inline bool SparseTrie<T>::Node::Children::ConstIterator<reverse>::operator!=(const ConstIterator& other) const noexcept {
     return !operator=(other);
 }
 
 template<typename T>
-inline bool SparseTrie<T>::Node::Children::ConstIterator::operator!() const noexcept {
+template<const bool reverse>
+inline bool SparseTrie<T>::Node::Children::ConstIterator<reverse>::operator!() const noexcept {
     return !isValid();
 }
 
 template<typename T>
-inline const typename SparseTrie<T>::Node* SparseTrie<T>::Node::Children::ConstIterator::operator*() const noexcept {
+template<const bool reverse>
+inline const typename SparseTrie<T>::Node* SparseTrie<T>::Node::Children::ConstIterator<reverse>::operator*() const noexcept {
     assert(isValid());
     return &child->node;
 }
 
 template<typename T>
-inline typename SparseTrie<T>::Node::Children::ConstIterator& SparseTrie<T>::Node::Children::ConstIterator::operator++() noexcept {
+template<const bool reverse>
+inline typename SparseTrie<T>::Node::Children::template ConstIterator<reverse>& SparseTrie<T>::Node::Children::ConstIterator<reverse>::operator++() noexcept {
     if(isValid()) {
-        child = child->right;
+        child = reverse ? child->left : child->right;
     }
     return *this;
 }
 
 template<typename T>
-inline typename SparseTrie<T>::Node::Children::ConstIterator SparseTrie<T>::Node::Children::ConstIterator::operator++(int) noexcept {
+template<const bool reverse>
+inline typename SparseTrie<T>::Node::Children::template ConstIterator<reverse> SparseTrie<T>::Node::Children::ConstIterator<reverse>::operator++(int) noexcept {
     ConstIterator copy = *this;
     operator++();
     return copy;
 }
 
 template<typename T>
-inline typename SparseTrie<T>::Node::Children::ConstIterator& SparseTrie<T>::Node::Children::ConstIterator::operator--() noexcept {
+template<const bool reverse>
+inline typename SparseTrie<T>::Node::Children::template ConstIterator<reverse>& SparseTrie<T>::Node::Children::ConstIterator<reverse>::operator--() noexcept {
     if(isValid()) {
-        child = child->left;
+        child = reverse ? child->right : child->left;
     }
     return *this;
 }
 
 template<typename T>
-inline typename SparseTrie<T>::Node::Children::ConstIterator SparseTrie<T>::Node::Children::ConstIterator::operator--(int) noexcept {
+template<const bool reverse>
+inline typename SparseTrie<T>::Node::Children::template ConstIterator<reverse> SparseTrie<T>::Node::Children::ConstIterator<reverse>::operator--(int) noexcept {
     ConstIterator copy = *this;
     operator--();
     return copy;
 }
 
 template<typename T>
-inline SparseTrie<T>::Node::Children::ConstIterator::ConstIterator(const Child* child, const SparseTrie<T>::Node::Children* children) noexcept
+template<const bool reverse>
+inline SparseTrie<T>::Node::Children::ConstIterator<reverse>::ConstIterator(const Child* child, const SparseTrie<T>::Node::Children* children) noexcept
 : child{child}, children{children} { }
 
 template<typename T>
-inline bool SparseTrie<T>::Node::Children::ConstIterator::isValid() const noexcept {
+template<const bool reverse>
+inline bool SparseTrie<T>::Node::Children::ConstIterator<reverse>::isValid() const noexcept {
     return child;
 }

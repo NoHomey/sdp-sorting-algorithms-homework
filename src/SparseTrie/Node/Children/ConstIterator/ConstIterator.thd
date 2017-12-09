@@ -3,6 +3,7 @@
 #include "../Children.thd"
 
 template<typename T>
+template<const bool reverse>
 class SparseTrie<T>::Node::Children::ConstIterator {
     friend SparseTrie<T>::Node::Children;
 

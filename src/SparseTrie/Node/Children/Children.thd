@@ -10,8 +10,6 @@ private:
 public:
     using Allocator = SharedAllocator<ChunkAllocator, false>::forType<Child>;
 
-    class ConstIterator;
-
 public:
     Children(const Allocator& allocator) noexcept;
 
@@ -30,9 +28,15 @@ public:
 
     const Node* find(const char label) const noexcept;
 
-    ConstIterator first() const noexcept;
+public:
+    template<const bool reverse>
+    class ConstIterator;
 
-    ConstIterator last() const noexcept;
+    template<const bool reverse = false>
+    ConstIterator<reverse> first() const noexcept;
+
+    template<const bool reverse = false>
+    ConstIterator<reverse> last() const noexcept;
 
 public:
     Node* insert(const Node& child);

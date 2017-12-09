@@ -53,13 +53,15 @@ inline const typename SparseTrie<T>::Node* SparseTrie<T>::Node::Children::find(c
 }
 
 template<typename T>
-inline typename SparseTrie<T>::Node::Children::ConstIterator SparseTrie<T>::Node::Children::first() const noexcept {
-    return {firstChild, this};
+template<const bool reverse>
+inline typename SparseTrie<T>::Node::Children::template ConstIterator<reverse> SparseTrie<T>::Node::Children::first() const noexcept {
+    return {reverse ? lastChild : firstChild, this};
 }
 
 template<typename T>
-inline typename SparseTrie<T>::Node::Children::ConstIterator SparseTrie<T>::Node::Children::last() const noexcept {
-    return {lastChild, this};
+template<const bool reverse>
+inline typename SparseTrie<T>::Node::Children::template ConstIterator<reverse> SparseTrie<T>::Node::Children::last() const noexcept {
+    return {reverse ? firstChild : lastChild, this};
 }
 
 template<typename T>

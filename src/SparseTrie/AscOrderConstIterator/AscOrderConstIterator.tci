@@ -34,16 +34,7 @@ inline typename SparseTrie<T>::AscOrderConstIterator& SparseTrie<T>::AscOrderCon
     if(isValid()) {
         ++objectsIterator;
         if(!objectsIterator) {
-            const Node* top = stack.top();
-            if(top->children.hasAny()) {
-                top = *(top->children.first());
-                stack.push(top);
-                objectsIterator = top->objects.first();
-                path[pathLength++] = top->label;
-                tryToMoveDown();
-            } else {
-                next();
-            }
+            next();
         }
     }
     return *this;
@@ -76,43 +67,44 @@ inline SparseTrie<T>::AscOrderConstIterator::~AscOrderConstIterator() noexcept {
 template<typename T>
 void SparseTrie<T>::AscOrderConstIterator::tryToMoveDown() noexcept {
     const Node* node = stack.top();
-    bool movedDown = false;
     while(node->objects.isEmpty() && node->children.hasAny()) {
-        node = *(node->children.first());
+        node = *(node->children.template first<false>());
         stack.push(node);
         path[pathLength++] = node->label;
-        movedDown = true;
     }
-    if(movedDown) {
-        objectsIterator = node->objects.first();
-    }
+    objectsIterator = node->objects.first();
     path[pathLength] = '\0';
 }
 
 template<typename T>
 void SparseTrie<T>::AscOrderConstIterator::next() noexcept {
-    const Node* node = stack.pop();
-    while(!stack.isEmpty()) {
-        const Node* parent = stack.top();
-        if(parent->children.hasAny()) {
-            typename Node::Children::ConstIterator iter = parent->children.last();
-            bool hasMoreChildren = false;
-            while(node != (*iter)) {
-                --iter;
-                hasMoreChildren = true;
-            }
-            if(hasMoreChildren) {
-                ++iter;
-                node = *iter;
-                stack.push(node);
-                objectsIterator = node->objects.first();
-                path[pathLength - 1] = node->label;
-                tryToMoveDown();
-                return;
-            }
-        }
+    const Node* node = stack.top();
+    if(node->children.hasAny()) {
+        node = *(node->children.first());
+        stack.push(node);
+        path[pathLength++] = node->label;
+        tryToMoveDown();
+    } else {
         node = stack.pop();
-        --pathLength;
+        while(!stack.isEmpty()) {
+            const Node* parent = stack.top();
+            if(parent->children.hasAny()) {
+                typename Node::Children::template ConstIterator<false> iter = parent->children. template last<false>();
+                bool hasMoreChildren = false;
+                for(; node != (*iter); --iter) {
+                    hasMoreChildren = true;
+                }
+                if(hasMoreChildren) {
+                    node = *(++iter);
+                    stack.push(node);
+                    path[pathLength - 1] = node->label;
+                    tryToMoveDown();
+                    return;
+                }
+            }
+            node = stack.pop();
+            --pathLength;
+        }
     }
 }
 
