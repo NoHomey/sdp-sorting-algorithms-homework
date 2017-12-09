@@ -29,6 +29,12 @@ public:
 
     void insert(const char* key, T&& value);
 
+public:
+    class AscOrderConstIterator;
+
+public:
+    AscOrderConstIterator ascOrderFirst() const noexcept;
+
 private:
     struct Node;
 
@@ -45,6 +51,8 @@ private:
 private:
     std::size_t count;
 
+    std::size_t trieNodesCount;
+
     std::size_t maxKeyLength;
 
     ObjectsAllocator objectsAllocator;
@@ -59,4 +67,5 @@ private:
 };
 
 #include "Node/Node.thd"
+#include "AscOrderConstIterator/AscOrderConstIterator.thd"
 #include "SparseTrie.tci"

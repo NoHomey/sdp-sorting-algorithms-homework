@@ -23,23 +23,29 @@ int main() {
     
     SparseTrie<StudentExam> trie;
 
-    trie.insert("Ivo Stratev", {examDate, 21, 6});
+    trie.insert("abcd", {examDate, 21, 6});
 
-    trie.insert("Iva Kostatinowa", {examDate, 19, 6});
+    trie.insert("abbb", {examDate, 19, 6});
 
-    trie.insert("Kia Milanowa", {examDate, 19, 6});
+    trie.insert("bbb", {examDate, 19, 6});
 
-    trie.insert("Kris Keca", {examDate, 20, 5});
+    trie.insert("a", {examDate, 20, 5});
 
-    trie.insert("Asia Lozanowa", {examDate, 21, 5});
+    trie.insert("b", {examDate, 21, 5});
 
-    trie.insert("Katerina Stoyanowa", {examDate, 19, 4});
+    trie.insert("aabb", {examDate, 19, 4});
 
-    trie.insert("Kat Loizz", {examDate, 19, 3});
+    trie.insert("abcde", {examDate, 19, 3});
 
-    trie.insert("Lia Dobreva", {examDate, 20, 5});
+    trie.insert("abcdf", {examDate, 20, 5});
 
     std::cout << trie.size() << std::endl;
+
+    SparseTrie<StudentExam>::AscOrderConstIterator iter = trie.ascOrderFirst();
+    for(std::size_t i = 0; iter; ++iter, ++i) {
+        auto res = *iter;
+        std::cout << i << ' ' << res.first << ' ' << res.second << std::endl;
+    }
 
     return 0;
 }

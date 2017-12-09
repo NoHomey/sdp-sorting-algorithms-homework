@@ -10,6 +10,8 @@ private:
 public:
     using Allocator = SharedAllocator<ChunkAllocator, false>::forType<Child>;
 
+    class ConstIterator;
+
 public:
     Children(const Allocator& allocator) noexcept;
 
@@ -27,6 +29,10 @@ public:
     bool hasAny() const noexcept;
 
     const Node* find(const char label) const noexcept;
+
+    ConstIterator first() const noexcept;
+
+    ConstIterator last() const noexcept;
 
 public:
     Node* insert(const Node& child);
@@ -49,12 +55,13 @@ private:
     Node* insert(Child* child) noexcept;
 
 private:
-    Child* first;
+    Child* firstChild;
     
-    Child* last;
+    Child* lastChild;
 
     Allocator allocator;
 };
 
 #include "Child/Child.thd"
+#include "ConstIterator/ConstIterator.thd"
 #include "Children.tci"

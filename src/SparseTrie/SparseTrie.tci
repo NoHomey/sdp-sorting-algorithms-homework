@@ -8,6 +8,7 @@
 template<typename T>
 inline SparseTrie<T>::SparseTrie() noexcept
 : count{0},
+trieNodesCount{0},
 maxKeyLength{0},
 objectsAllocator{},
 sharedObjectsAllocator{&objectsAllocator},
@@ -31,19 +32,28 @@ inline void SparseTrie<T>::insert(const char* key, T&& value) {
 }
 
 template<typename T>
+inline typename SparseTrie<T>::AscOrderConstIterator SparseTrie<T>::ascOrderFirst() const noexcept {
+    return {this};
+}
+
+template<typename T>
 template<typename V>
 inline void SparseTrie<T>::insertValue(const char* key, V value) {
+    assert(key && key[0]);
     const std::size_t keyLength = std::strlen(key);
     Pair<std::size_t, Node*> prefixResult = findPrefix(key);
     Node* node = prefixResult.second;
     for(std::size_t index = prefixResult.first; index < keyLength; ++index) {
         node = node->children.insert({sharedChildrenAllocator, sharedObjectsAllocator, key[index]});
+        ++trieNodesCount;
     }
     node->objects.prepend(std::forward<V>(value));
     ++count;
     if(keyLength > maxKeyLength) {
         maxKeyLength = keyLength;
     }
+    assert(objectsAllocator.inUseAllocatedNodes() == count);
+    assert(childrenAllocator.inUseAllocatedNodes() == trieNodesCount);
 }
 
 template<typename T>

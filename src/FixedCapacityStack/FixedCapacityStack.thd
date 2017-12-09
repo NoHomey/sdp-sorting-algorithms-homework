@@ -30,7 +30,11 @@ public:
 
     const T& top() const noexcept;
 
+    const T* data() const noexcept;
+
 public:
+    T* data() noexcept;
+
     T pop() noexcept;
 
     void push(const T& value) noexcept;
@@ -38,7 +42,7 @@ public:
     void push(T&& value) noexcept;
 
 private:
-    const std::size_t stackCapacity;
+    std::size_t stackCapacity;
 
     std::size_t stackSize;
 

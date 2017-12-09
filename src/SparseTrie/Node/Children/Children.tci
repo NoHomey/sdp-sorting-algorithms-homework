@@ -4,7 +4,7 @@
 
 template<typename T>
 inline SparseTrie<T>::Node::Children::Children(const Allocator& allocator) noexcept
-: first{nullptr}, last{nullptr}, allocator{allocator} { }
+: firstChild{nullptr}, lastChild{nullptr}, allocator{allocator} { }
 
 template<typename T>
 inline SparseTrie<T>::Node::Children::~Children() noexcept {
@@ -15,7 +15,7 @@ inline SparseTrie<T>::Node::Children::~Children() noexcept {
 template<typename T>
 inline SparseTrie<T>::Node::Children::Children(const Children& other)
 : Children{other.allocator} {
-    for(const Child* iter = other.first; iter; iter = iter->right) {
+    for(const Child* iter = other.firstChild; iter; iter = iter->right) {
         append(iter->node);
     }
 }
@@ -44,12 +44,22 @@ inline typename SparseTrie<T>::Node::Children& SparseTrie<T>::Node::Children::op
 
 template<typename T>
 inline bool SparseTrie<T>::Node::Children::hasAny() const noexcept {
-    return first;
+    return firstChild;
 }
 
 template<typename T>
 inline const typename SparseTrie<T>::Node* SparseTrie<T>::Node::Children::find(const char label) const noexcept {
     return const_cast<SparseTrie<T>::Node::Children* const>(this)->find(label);
+}
+
+template<typename T>
+inline typename SparseTrie<T>::Node::Children::ConstIterator SparseTrie<T>::Node::Children::first() const noexcept {
+    return {firstChild, this};
+}
+
+template<typename T>
+inline typename SparseTrie<T>::Node::Children::ConstIterator SparseTrie<T>::Node::Children::last() const noexcept {
+    return {lastChild, this};
 }
 
 template<typename T>
@@ -65,12 +75,12 @@ inline typename SparseTrie<T>::Node* SparseTrie<T>::Node::Children::insert(Node&
 template<typename T>
 inline typename SparseTrie<T>::Node* SparseTrie<T>::Node::Children::find(const char label) noexcept {
     if(hasAny()) {
-        if(first->node.label == label) {
-            return &first->node;
-        } else if(last->node.label == label) {
-            return &last->node;
+        if(firstChild->node.label == label) {
+            return &firstChild->node;
+        } else if(lastChild->node.label == label) {
+            return &lastChild->node;
         } else {
-            for(Child* iter = first->right; iter; iter = iter->right) {
+            for(Child* iter = firstChild->right; iter; iter = iter->right) {
                 if(iter->node.label == label) {
                     return &iter->node;
                 }
@@ -86,9 +96,9 @@ inline void SparseTrie<T>::Node::Children::destroy() noexcept {
         allocator.deleteAllAllocatedNodes();
     } else {
         Child* temp;
-        while(first) {
-            temp = first;
-            first = first->right;
+        while(firstChild) {
+            temp = firstChild;
+            firstChild = firstChild->right;
             allocator.deleteNode(temp);
         }
     }
@@ -96,36 +106,38 @@ inline void SparseTrie<T>::Node::Children::destroy() noexcept {
 
 template<typename T>
 inline void SparseTrie<T>::Node::Children::null() noexcept {
-    first = last = nullptr;
+    firstChild = lastChild = nullptr;
 }
 
 template<typename T>
 inline void SparseTrie<T>::Node::Children::move(Children&& other) noexcept {
     destroy();
-    first = other.first;
-    last = other.last;
+    firstChild = other.firstChild;
+    lastChild = other.lastChild;
     allocator = std::move(other.allocator);
     other.null();
 }
 
 template<typename T>
 inline void SparseTrie<T>::Node::Children::append(Child* child) noexcept {
-    last = hasAny() ? (last->right = child) : (first = child);
+    child->left = lastChild;
+    lastChild = hasAny() ? (lastChild->right = child) : (firstChild = child);
 }
 
 template<typename T>
 inline void SparseTrie<T>::Node::Children::prepend(Child* child) noexcept {
-    first = hasAny() ? (first->left = child) : (last = child);
+    child->right = firstChild;
+    firstChild = hasAny() ? (firstChild->left = child) : (lastChild = child);
 }
 
 template<typename T>
 inline typename SparseTrie<T>::Node* SparseTrie<T>::Node::Children::insert(Child* child) noexcept {
-    if(!hasAny() || (child->node.label <= first->node.label)) {
+    if(!hasAny() || (child->node.label <= firstChild->node.label)) {
         prepend(child);
-    } else if(child->node.label >= last->node.label) {
+    } else if(child->node.label >= lastChild->node.label) {
         append(child);
     } else {
-        for(Child* iter = first->right; true; iter = iter->right) {
+        for(Child* iter = firstChild->right; true; iter = iter->right) {
             if(iter->node.label >= child->node.label) {
                 iter->left = iter->left->right = child->connect(iter->left, iter);
                 break;

@@ -1,0 +1,69 @@
+#pragma once
+
+#include "ConstIterator.thd"
+#include <cassert>
+
+template<typename T>
+inline SparseTrie<T>::Node::Children::ConstIterator::operator bool() const noexcept {
+    return isValid();
+}
+
+template<typename T>
+inline bool SparseTrie<T>::Node::Children::ConstIterator::operator==(const ConstIterator& other) const noexcept {
+    return (children == other.children) && (child == other.child);
+}
+
+template<typename T>
+inline bool SparseTrie<T>::Node::Children::ConstIterator::operator!=(const ConstIterator& other) const noexcept {
+    return !operator=(other);
+}
+
+template<typename T>
+inline bool SparseTrie<T>::Node::Children::ConstIterator::operator!() const noexcept {
+    return !isValid();
+}
+
+template<typename T>
+inline const typename SparseTrie<T>::Node* SparseTrie<T>::Node::Children::ConstIterator::operator*() const noexcept {
+    assert(isValid());
+    return &child->node;
+}
+
+template<typename T>
+inline typename SparseTrie<T>::Node::Children::ConstIterator& SparseTrie<T>::Node::Children::ConstIterator::operator++() noexcept {
+    if(isValid()) {
+        child = child->right;
+    }
+    return *this;
+}
+
+template<typename T>
+inline typename SparseTrie<T>::Node::Children::ConstIterator SparseTrie<T>::Node::Children::ConstIterator::operator++(int) noexcept {
+    ConstIterator copy = *this;
+    operator++();
+    return copy;
+}
+
+template<typename T>
+inline typename SparseTrie<T>::Node::Children::ConstIterator& SparseTrie<T>::Node::Children::ConstIterator::operator--() noexcept {
+    if(isValid()) {
+        child = child->left;
+    }
+    return *this;
+}
+
+template<typename T>
+inline typename SparseTrie<T>::Node::Children::ConstIterator SparseTrie<T>::Node::Children::ConstIterator::operator--(int) noexcept {
+    ConstIterator copy = *this;
+    operator--();
+    return copy;
+}
+
+template<typename T>
+inline SparseTrie<T>::Node::Children::ConstIterator::ConstIterator(const Child* child, const SparseTrie<T>::Node::Children* children) noexcept
+: child{child}, children{children} { }
+
+template<typename T>
+inline bool SparseTrie<T>::Node::Children::ConstIterator::isValid() const noexcept {
+    return child;
+}
