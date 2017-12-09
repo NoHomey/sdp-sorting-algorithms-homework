@@ -13,9 +13,9 @@ public:
 
     ~OrderedConstIterator() noexcept;
 
-    OrderedConstIterator(const OrderedConstIterator& other) = delete;
+    OrderedConstIterator(const OrderedConstIterator& other);
 
-    OrderedConstIterator(OrderedConstIterator&& other) noexcept = default;
+    OrderedConstIterator(OrderedConstIterator&& other) noexcept;
 
     OrderedConstIterator& operator=(const OrderedConstIterator& other) = delete;
 
@@ -35,7 +35,7 @@ public:
 public:
     Derived& operator++() noexcept;
 
-    //Derived operator++(int) noexcept;
+    Derived operator++(int) noexcept;
 
 private:
     OrderedConstIterator(const SparseTrie<T>* trie) noexcept;

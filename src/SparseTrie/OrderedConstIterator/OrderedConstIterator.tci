@@ -2,6 +2,32 @@
 
 #include "OrderedConstIterator.thd"
 #include <cassert>
+#include <cstring>
+
+template<typename T>
+template<typename Derived, const bool reverse>
+inline SparseTrie<T>::OrderedConstIterator<Derived, reverse>::OrderedConstIterator(const OrderedConstIterator& other)
+: trie{other.trie},
+path{new char[other.trie->maxKeyLength + 1]},
+pathLength{other.pathLength},
+stack{other.trie->maxKeyLength + 1, new const SparseTrie<T>::Node*[other.trie->maxKeyLength + 1]},
+objectsIterator{other.objectsIterator} {
+    std::strcpy(path, other.path);
+    std::memcpy(stack.data(), other.stack.data(), other.stack.size());
+}
+
+template<typename T>
+template<typename Derived, const bool reverse>
+inline SparseTrie<T>::OrderedConstIterator<Derived, reverse>::OrderedConstIterator(OrderedConstIterator&& other) noexcept
+: trie{other.trie},
+path{other.path},
+pathLength{other.pathLength},
+stack{std::move(other.stack)},
+objectsIterator{std::move(other.objectsIterator)} {
+    other.trie = nullptr;
+    other.path = nullptr;
+    other.pathLength = 0;
+}
 
 template<typename T>
 template<typename Derived, const bool reverse>
@@ -44,6 +70,14 @@ inline Derived& SparseTrie<T>::OrderedConstIterator<Derived, reverse>::operator+
         }
     }
     return *static_cast<Derived* const>(this);
+}
+
+template<typename T>
+template<typename Derived, const bool reverse>
+inline Derived SparseTrie<T>::OrderedConstIterator<Derived, reverse>::operator++(int) noexcept {
+    Derived copy{*static_cast<const Derived* const>(this)};
+    operator++();
+    return copy;
 }
 
 template<typename T>

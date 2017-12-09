@@ -43,7 +43,7 @@ int main() {
 
     std::cout << trie.size() << std::endl;
 
-    {
+    /*{
         SparseTrie<StudentExam>::AscOrderConstIterator iter = trie.ascOrderFirst();
         for(std::size_t i = 0; iter; ++iter, ++i) {
             auto res = *iter;
@@ -57,6 +57,26 @@ int main() {
             auto res = *iter;
             std::cout << i << ' ' << res.first << ' ' << res.second;
         }
+    }*/
+
+    SparseTrie<StudentExam>::AscOrderConstIterator iter = trie.ascOrderFirst();
+
+    SparseTrie<StudentExam>::AscOrderConstIterator copy = iter++;
+
+    {
+        auto res = *iter;
+        std::cout << res.first << ' ' << res.second;
+    }
+
+    {
+        auto res = *copy;
+        std::cout << res.first << ' ' << res.second;
+    }
+
+    {
+        SparseTrie<StudentExam>::AscOrderConstIterator moved = std::move(copy);
+        auto res = *moved;
+        std::cout << res.first << ' ' << res.second;
     }
 
     return 0;

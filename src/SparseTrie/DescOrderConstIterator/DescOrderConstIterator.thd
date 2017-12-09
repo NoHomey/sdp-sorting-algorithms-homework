@@ -14,7 +14,7 @@ public:
 
     ~DescOrderConstIterator() noexcept = default;
 
-    DescOrderConstIterator(const DescOrderConstIterator& other) = delete;
+    DescOrderConstIterator(const DescOrderConstIterator& other) = default;
 
     DescOrderConstIterator(DescOrderConstIterator&& other) noexcept = default;
 

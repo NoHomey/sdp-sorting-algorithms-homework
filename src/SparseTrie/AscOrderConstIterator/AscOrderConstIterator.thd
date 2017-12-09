@@ -14,7 +14,7 @@ public:
 
     ~AscOrderConstIterator() noexcept = default;
 
-    AscOrderConstIterator(const AscOrderConstIterator& other) = delete;
+    AscOrderConstIterator(const AscOrderConstIterator& other) = default;
 
     AscOrderConstIterator(AscOrderConstIterator&& other) noexcept = default;
 
