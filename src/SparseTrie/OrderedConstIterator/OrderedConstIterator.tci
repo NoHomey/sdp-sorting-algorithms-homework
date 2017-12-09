@@ -1,0 +1,115 @@
+#pragma once
+
+#include "OrderedConstIterator.thd"
+#include <cassert>
+
+template<typename T>
+template<typename Derived, const bool reverse>
+inline SparseTrie<T>::OrderedConstIterator<Derived, reverse>::operator bool() const noexcept {
+    return isValid();
+}
+
+template<typename T>
+template<typename Derived, const bool reverse>
+inline bool SparseTrie<T>::OrderedConstIterator<Derived, reverse>::operator==(const Derived& other) const noexcept {
+    return (trie == other.trie) && (objectsIterator = other.objectsIterator);
+}
+
+template<typename T>
+template<typename Derived, const bool reverse>
+inline bool SparseTrie<T>::OrderedConstIterator<Derived, reverse>::operator!=(const Derived& other) const noexcept {
+    return !operator=(other);
+}
+
+template<typename T>
+template<typename Derived, const bool reverse>
+inline bool SparseTrie<T>::OrderedConstIterator<Derived, reverse>::operator!() const noexcept {
+    return !isValid();
+}
+
+template<typename T>
+template<typename Derived, const bool reverse>
+inline Pair<const char*, const T&> SparseTrie<T>::OrderedConstIterator<Derived, reverse>::operator*() const noexcept {
+    assert(isValid());
+    return {const_cast<const char*>(path), *objectsIterator};
+}
+
+template<typename T>
+template<typename Derived, const bool reverse>
+inline Derived& SparseTrie<T>::OrderedConstIterator<Derived, reverse>::operator++() noexcept {
+    if(isValid()) {
+        ++objectsIterator;
+        if(!objectsIterator) {
+            static_cast<Derived* const>(this)->next();
+        }
+    }
+    return *static_cast<Derived* const>(this);
+}
+
+template<typename T>
+template<typename Derived, const bool reverse>
+inline SparseTrie<T>::OrderedConstIterator<Derived, reverse>::OrderedConstIterator(const SparseTrie<T>* trie) noexcept
+: trie{trie},
+path{new char[trie->maxKeyLength + 1]},
+pathLength{0},
+stack{trie->maxKeyLength + 1, new const SparseTrie<T>::Node*[trie->maxKeyLength + 1]},
+objectsIterator{trie->root.objects.first()} {
+    stack.push(&trie->root);
+    tryToMoveDown();
+}
+
+template<typename T>
+template<typename Derived, const bool reverse>
+inline SparseTrie<T>::OrderedConstIterator<Derived, reverse>::~OrderedConstIterator() noexcept {
+    delete[] stack.data();
+    delete[] path;
+}
+
+template<typename T>
+template<typename Derived, const bool reverse>
+void SparseTrie<T>::OrderedConstIterator<Derived, reverse>::tryToMoveDown() noexcept {
+    const Node* node = stack.top();
+    while(Derived::shouldMoveDown(node)) {
+        node = *(node->children. template first<reverse>());
+        stack.push(node);
+        path[pathLength++] = node->label;
+    }
+    objectsIterator = node->objects.first();
+    path[pathLength] = '\0';
+}
+
+template<typename T>
+template<typename Derived, const bool reverse>
+void SparseTrie<T>::OrderedConstIterator<Derived, reverse>::next() noexcept {
+    const Node* node = stack.pop();
+    while(!stack.isEmpty()) {
+        const Node* parent = stack.top();
+        if(parent->children.hasAny()) {
+            typename Node::Children::template ConstIterator<reverse> iter = parent->children. template last<reverse>();
+            bool hasMoreChildren = false;
+            for(; node != (*iter); --iter) {
+                hasMoreChildren = true;
+            }
+            if(hasMoreChildren) {
+                node = *(++iter);
+                stack.push(node);
+                path[pathLength - 1] = node->label;
+                tryToMoveDown();
+                return;
+            }
+        }
+        if(Derived::shouldStopAtParent(parent)) {
+            path[--pathLength] = '\0';
+            objectsIterator = parent->objects.first();
+            return;
+        }
+        node = stack.pop();
+        --pathLength;
+    }
+}
+
+template<typename T>
+template<typename Derived, const bool reverse>
+inline bool SparseTrie<T>::OrderedConstIterator<Derived, reverse>::isValid() const noexcept {
+    return static_cast<bool>(objectsIterator);
+}

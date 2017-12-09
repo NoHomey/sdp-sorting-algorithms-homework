@@ -44,6 +44,9 @@ public:
 private:
     struct Node;
 
+    template<typename Derived, const bool reverse>
+    class OrderedConstIterator;
+
     using ObjectsAllocator = typename Node::Objects::Allocator::SharedAllocatorType;
 
     using ChildrenAllocator = typename Node::Children::Allocator::SharedAllocatorType;
@@ -73,6 +76,7 @@ private:
 };
 
 #include "Node/Node.thd"
+#include "OrderedConstIterator/OrderedConstIterator.thd"
 #include "AscOrderConstIterator/AscOrderConstIterator.thd"
 #include "DescOrderConstIterator/DescOrderConstIterator.thd"
 #include "SparseTrie.tci"

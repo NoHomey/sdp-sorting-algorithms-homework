@@ -34,6 +34,8 @@ int main() {
     trie.insert("abcdf", {examDate, 20, 5});
     trie.insert("bb", {examDate, 19, 6});
     trie.insert("ab", {examDate, 20, 5});
+    trie.insert("c", {examDate, 20, 5});
+    trie.insert("cc", {examDate, 20, 5});
     trie.insert("abc", {examDate, 21, 5});
     trie.insert("abb", {examDate, 19, 4});
     trie.insert("aa", {examDate, 19, 3});

@@ -1,0 +1,61 @@
+#pragma once
+
+#include "../SparseTrie.thd"
+#include "../../FixedCapacityStack/FixedCapacityStack.thd"
+
+template<typename T>
+template<typename Derived, const bool reverse>
+class SparseTrie<T>::OrderedConstIterator {
+    friend SparseTrie<T>;
+
+public:
+    OrderedConstIterator() = delete;
+
+    ~OrderedConstIterator() noexcept;
+
+    OrderedConstIterator(const OrderedConstIterator& other) = delete;
+
+    OrderedConstIterator(OrderedConstIterator&& other) noexcept = default;
+
+    OrderedConstIterator& operator=(const OrderedConstIterator& other) = delete;
+
+    OrderedConstIterator& operator=(OrderedConstIterator&& other) noexcept = delete;
+
+public:
+    explicit operator bool() const noexcept;
+
+    bool operator==(const Derived& other) const noexcept;
+
+    bool operator!=(const Derived& other) const noexcept;
+
+    bool operator!() const noexcept;
+
+    Pair<const char*, const T&> operator*() const noexcept;
+
+public:
+    Derived& operator++() noexcept;
+
+    //Derived operator++(int) noexcept;
+
+private:
+    OrderedConstIterator(const SparseTrie<T>* trie) noexcept;
+
+    void tryToMoveDown() noexcept;
+
+    void next() noexcept;
+
+    bool isValid() const noexcept;
+
+private:
+    const SparseTrie<T>* trie;
+
+    char* path;
+
+    std::size_t pathLength;
+
+    FixedCapacityStack<const SparseTrie<T>::Node*> stack;
+
+    typename SparseTrie<T>::Node::Objects::ConstIterator objectsIterator;
+};
+
+#include "OrderedConstIterator.tci"

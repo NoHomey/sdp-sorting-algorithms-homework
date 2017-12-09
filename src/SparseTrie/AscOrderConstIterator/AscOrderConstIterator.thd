@@ -1,16 +1,18 @@
 #pragma once
 
-#include "../SparseTrie.thd"
-#include "../../FixedCapacityStack/FixedCapacityStack.thd"
+#include "../OrderedConstIterator/OrderedConstIterator.thd"
 
 template<typename T>
-class SparseTrie<T>::AscOrderConstIterator {
+class SparseTrie<T>::AscOrderConstIterator
+:public SparseTrie<T>::template OrderedConstIterator<SparseTrie<T>::AscOrderConstIterator, false> {
     friend SparseTrie<T>;
+
+    using Base = SparseTrie<T>::OrderedConstIterator<SparseTrie<T>::AscOrderConstIterator, false>;
 
 public:
     AscOrderConstIterator() = delete;
 
-    ~AscOrderConstIterator() noexcept;
+    ~AscOrderConstIterator() noexcept = default;
 
     AscOrderConstIterator(const AscOrderConstIterator& other) = delete;
 
@@ -20,41 +22,15 @@ public:
 
     AscOrderConstIterator& operator=(AscOrderConstIterator&& other) noexcept = delete;
 
-public:
-    explicit operator bool() const noexcept;
+private:
+    static bool shouldMoveDown(const Node* node) noexcept;
 
-    bool operator==(const AscOrderConstIterator& other) const noexcept;
-
-    bool operator!=(const AscOrderConstIterator& other) const noexcept;
-
-    bool operator!() const noexcept;
-
-    Pair<const char*, const T&> operator*() const noexcept;
-
-public:
-    AscOrderConstIterator& operator++() noexcept;
-
-    //AscOrderConstIterator operator++(int) noexcept;
+    static bool shouldStopAtParent(const Node* node) noexcept;
 
 private:
     AscOrderConstIterator(const SparseTrie<T>* trie) noexcept;
 
-    void tryToMoveDown() noexcept;
-
     void next() noexcept;
-
-    bool isValid() const noexcept;
-
-private:
-    const SparseTrie<T>* trie;
-
-    char* path;
-
-    std::size_t pathLength;
-
-    FixedCapacityStack<const SparseTrie<T>::Node*> stack;
-
-    typename SparseTrie<T>::Node::Objects::ConstIterator objectsIterator;
 };
 
 #include "AscOrderConstIterator.tci"
