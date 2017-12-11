@@ -23,7 +23,7 @@ inline SingleLinkedList<T, NodeAllocator>::~SingleLinkedList() noexcept {
 
 template<typename T, class NodeAllocator>
 inline SingleLinkedList<T, NodeAllocator>::SingleLinkedList(const SingleLinkedList& other)
-: SingleLinkedList{} {
+: SingleLinkedList{other.allocator.getNextAllocationCount()} {
     if(other.allocator.isShared()) {
         allocator = other.allocator;
     }
