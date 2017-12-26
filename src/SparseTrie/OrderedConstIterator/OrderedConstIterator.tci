@@ -44,7 +44,7 @@ inline bool SparseTrie<T>::OrderedConstIterator<Derived, reverse>::operator==(co
 template<typename T>
 template<typename Derived, const bool reverse>
 inline bool SparseTrie<T>::OrderedConstIterator<Derived, reverse>::operator!=(const Derived& other) const noexcept {
-    return !operator=(other);
+    return !operator==(other);
 }
 
 template<typename T>
